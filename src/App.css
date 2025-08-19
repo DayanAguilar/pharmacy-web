@@ -76,3 +76,21 @@ h2{
   color: white;
   border-color: #1976d2;
 }
+.top-bar .btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: white;
+  color: black;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.top-bar.btn:hover {
+  background-color: #f0f0f0;
+}
+.top-bar .btn-active {
+  background-color: #1976d2;
+  color: white;
+  border-color: #1976d2;
+}

@@ -11,7 +11,6 @@ function SearchBar({ onSearch }: SearchBarProps) {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // 👉 si está vacío también mandamos string vacío
     onSearch(query.trim());
   };
 

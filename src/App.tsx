@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import { deleteProduct, getProducts } from './services/utils';
-import { createSell } from './services/utils';
+import { deleteProduct, getProducts, createSell } from './services/utils';
 import Table from './components/Table/Table';
 import type { Product } from './types/product';
 import SearchBar from './components/Search/Search';
 import Cart from './components/Cart/Cart';
+import SellsTable from './components/SellsTable/SellsTable';
 
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filtered, setFiltered] = useState<Product[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [filterType, setFilterType] = useState<'all' | 'expiring'>('all');
+  const [view, setView] = useState<'products' | 'sells'>('products'); // <-- nueva vista
 
   useEffect(() => {
     fetchProducts();
@@ -64,7 +65,6 @@ function App() {
     applyFilters('', type);
   };
 
-  // ✅ Nueva función de venta
   const handleSell = async (cartItems: { product_id: number | string; quantity: number }[]) => {
     if (cartItems.length === 0) {
       alert("El carrito está vacío");
@@ -72,13 +72,10 @@ function App() {
     }
 
     try {
-      // Enviamos cada item al backend
       for (const item of cartItems) {
         await createSell({ product_id: item.product_id, quantity: item.quantity });
       }
-
       alert("Venta realizada exitosamente");
-      // Refrescar productos desde el backend
       await fetchProducts();
     } catch (error) {
       console.error("Error realizando la venta:", error);
@@ -88,35 +85,60 @@ function App() {
 
   return (
     <div>
-      <h2>Productos</h2>
+      <h2>{view === 'products' ? 'Productos' : 'Ventas'}</h2>
+
+
       <div className="top-bar">
-        <SearchBar onSearch={handleSearch} />
-        <button className="btn btn-blue" onClick={() => setIsCartOpen(true)}>
-          Vender
+        <button
+          className={`btn ${view === 'products' ? 'btn-active' : ''}`}
+          onClick={() => setView('products')}
+        >
+          Productos
+        </button>
+        <button
+          className={`btn ${view === 'sells' ? 'btn-active' : ''}`}
+          onClick={() => setView('sells')}
+        >
+          Ventas
         </button>
       </div>
 
-      <div className="filter-bar">
-        <button
-          className={`btn ${filterType === 'all' ? 'btn-active' : ''}`}
-          onClick={() => handleFilterChange('all')}
-        >
-          Todos los productos
-        </button>
-        <button
-          className={`btn ${filterType === 'expiring' ? 'btn-active' : ''}`}
-          onClick={() => handleFilterChange('expiring')}
-        >
-          Productos por vencer
-        </button>
-      </div>
 
-      <Table products={filtered} onDelete={handleDelete} />
-      <Cart
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        onSell={handleSell} // <-- pasamos la función de venta
-      />
+      {view === 'products' && (
+        <>
+          <div className="top-bar">
+            <SearchBar onSearch={handleSearch} />
+            <button className="btn btn-blue" onClick={() => setIsCartOpen(true)}>
+              Vender
+            </button>
+          </div>
+
+          <div className="filter-bar">
+            <button
+              className={`btn ${filterType === 'all' ? 'btn-active' : ''}`}
+              onClick={() => handleFilterChange('all')}
+            >
+              Todos los productos
+            </button>
+            <button
+              className={`btn ${filterType === 'expiring' ? 'btn-active' : ''}`}
+              onClick={() => handleFilterChange('expiring')}
+            >
+              Productos por vencer
+            </button>
+          </div>
+
+          <Table products={filtered} onDelete={handleDelete} />
+          <Cart
+            isOpen={isCartOpen}
+            onClose={() => setIsCartOpen(false)}
+            onSell={handleSell}
+          />
+        </>
+      )}
+
+
+      {view === 'sells' && <SellsTable />}
     </div>
   );
 }
