@@ -1,23 +1,17 @@
 import { useState } from "react"
 import "./Table.css"
-
-type Product = {
-  product_id: number | string
-  product: string
-  sell_price: number | string
-  stock: number
-  category: string
-  laboratory: string
-  expire_date: string
-}
+import type { Product } from "../../types/product";
 
 type TableProps = {
   products: Product[],
-  onDelete: (id: string | number) => void
+  onDelete: (id: string | number) => void,
+  onEdit?: (product: Product) => void;
+
 }
 
-const Table = ({ products,onDelete }: TableProps) => {
+const Table = ({ products, onDelete, onEdit }: TableProps) => {
   const [quantities, setQuantities] = useState<Record<string | number, number>>({})
+  
 
   const handleQuantityChange = (id: string | number, value: number, stock: number) => {
     if (value > stock) {
@@ -37,9 +31,6 @@ const Table = ({ products,onDelete }: TableProps) => {
   }
 
 
-  const handleEdit = (id: string | number) => {
-    alert(`Editar producto con ID: ${id}`)
-  }
 
   return (
     <div className="table-container">
@@ -81,7 +72,10 @@ const Table = ({ products,onDelete }: TableProps) => {
                 <button className="btn btn-green" onClick={() => handleAdd(product)}>
                   Añadir
                 </button>
-                <button className="btn btn-blue" onClick={() => handleEdit(product.product_id)}>
+                <button
+                  className="btn btn-blue"
+                  onClick={() => onEdit && onEdit(product)}
+                >
                   Editar
                 </button>
                 <button className="btn btn-red" onClick={() => onDelete(product.product_id)}>

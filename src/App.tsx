@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import { deleteProduct, getProducts, createSell } from './services/utils';
+import { deleteProduct, getProducts, createSell, updateProduct } from './services/utils';
 import Table from './components/Table/Table';
 import type { Product } from './types/product';
 import SearchBar from './components/Search/Search';
 import Cart from './components/Cart/Cart';
 import SellsTable from './components/SellsTable/SellsTable';
+import EditProduct from './components/EditProduct/EditProduct';
 
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -64,6 +65,24 @@ function App() {
     setFilterType(type);
     applyFilters('', type);
   };
+
+  const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
+
+  const handleEditSave = async (id: string | number, updatedProduct: Partial<Product>) => {
+    try {
+      await updateProduct(id.toString(), updatedProduct);
+      setProducts((prev) =>
+        prev.map((p) => (p.product_id === id ? { ...p, ...updatedProduct } : p))
+      );
+      setFiltered((prev) =>
+        prev.map((p) => (p.product_id === id ? { ...p, ...updatedProduct } : p))
+      );
+    } catch (error) {
+      console.error("Error updating product:", error);
+    }
+  };
+
+
 
   const handleSell = async (cartItems: { product_id: number | string; quantity: number }[]) => {
     if (cartItems.length === 0) {
@@ -128,7 +147,11 @@ function App() {
             </button>
           </div>
 
-          <Table products={filtered} onDelete={handleDelete} />
+          <Table
+            products={filtered}
+            onDelete={handleDelete}
+            onEdit={(product) => setEditingProduct(product)}
+          />
           <Cart
             isOpen={isCartOpen}
             onClose={() => setIsCartOpen(false)}
@@ -138,7 +161,15 @@ function App() {
       )}
 
 
+
       {view === 'sells' && <SellsTable />}
+      {editingProduct && (
+        <EditProduct
+          product={editingProduct}
+          onClose={() => setEditingProduct(null)}
+          onSave={handleEditSave}
+        />
+      )}
     </div>
   );
 }

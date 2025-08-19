@@ -21,7 +21,7 @@ export const createProduct : (product: any) => Promise<any> = async (product) =>
   }
 }
 
-export const updateProduct : (id: string, product: any) => Promise<any> = async (id, product) => {
+export const updateProduct: (id: string, product: any) => Promise<any> = async (id, product) => {
   try {
     const response = await axios.put(`${URL}/products/${id}`, product);
     return response.data;
@@ -30,6 +30,7 @@ export const updateProduct : (id: string, product: any) => Promise<any> = async 
     throw error;
   }
 }
+
 
 export const deleteProduct : (id: string) => Promise<any> = async (id) => {
   try {
