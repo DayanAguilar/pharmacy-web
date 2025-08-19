@@ -1,4 +1,4 @@
-// DailyAlertModal.tsx
+
 import { useState, useEffect } from "react";
 import type { Product } from "../../types/product";
 import "./AlertModal.css";

@@ -14,7 +14,6 @@ const EditProduct = ({ product, onClose, onSave }: EditProductProps) => {
         if (product) {
             const formatDate = (dateStr?: string) => {
                 if (!dateStr) return "";
-                // Intentamos parsear YYYY-MM-DD o ISO, si falla devolvemos vacío
                 const d = new Date(dateStr);
                 return isNaN(d.getTime()) ? "" : d.toISOString().split("T")[0];
             };

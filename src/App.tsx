@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import './App.css'
+import { useEffect, useState } from 'react';
+import './App.css';
 import { deleteProduct, getProducts, createSell, updateProduct } from './services/utils';
 import Table from './components/Table/Table';
 import type { Product } from './types/product';
@@ -9,18 +9,28 @@ import SellsTable from './components/SellsTable/SellsTable';
 import EditProduct from './components/EditProduct/EditProduct';
 import DailyAlertModal from './components/AlertModal/AlertModal';
 import CreateProductModal from './components/CreateProductModal/CreateProductModal';
-
+import Login from './components/Login/Login';
 
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filtered, setFiltered] = useState<Product[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [filterType, setFilterType] = useState<'all' | 'expiring'>('all');
-  const [view, setView] = useState<'products' | 'sells'>('products'); // <-- nueva vista
+  const [view, setView] = useState<'products' | 'sells'>('products');
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+  return localStorage.getItem('isLoggedIn') === 'true';
+});
+
+
+const handleLogout = () => {
+  localStorage.removeItem('isLoggedIn');
+  setIsLoggedIn(false);
+};
+
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (isLoggedIn) fetchProducts();
+  }, [isLoggedIn]);
 
   const fetchProducts = async () => {
     try {
@@ -36,8 +46,8 @@ function App() {
     if (!confirm("¿Seguro que quieres eliminar este producto?")) return;
     try {
       await deleteProduct(id.toString());
-      setProducts((prev) => prev.filter((p) => p.product_id !== id));
-      setFiltered((prev) => prev.filter((p) => p.product_id !== id));
+      setProducts(prev => prev.filter(p => p.product_id !== id));
+      setFiltered(prev => prev.filter(p => p.product_id !== id));
     } catch (error) {
       console.error("Error eliminando producto:", error);
     }
@@ -51,14 +61,14 @@ function App() {
     let result = products;
 
     if (searchQuery) {
-      result = result.filter((p) =>
+      result = result.filter(p =>
         p.product.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     if (filter === 'expiring') {
       const today = new Date();
-      result = result.filter((p) => new Date(p.alert_date) <= today);
+      result = result.filter(p => new Date(p.alert_date) <= today);
     }
 
     setFiltered(result);
@@ -70,21 +80,19 @@ function App() {
   };
 
   const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
-
   const handleEditSave = async (id: string | number, updatedProduct: Partial<Product>) => {
     try {
       await updateProduct(id.toString(), updatedProduct);
-      setProducts((prev) =>
-        prev.map((p) => (p.product_id === id ? { ...p, ...updatedProduct } : p))
+      setProducts(prev =>
+        prev.map(p => (p.product_id === id ? { ...p, ...updatedProduct } : p))
       );
-      setFiltered((prev) =>
-        prev.map((p) => (p.product_id === id ? { ...p, ...updatedProduct } : p))
+      setFiltered(prev =>
+        prev.map(p => (p.product_id === id ? { ...p, ...updatedProduct } : p))
       );
     } catch (error) {
       console.error("Error updating product:", error);
     }
   };
-
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -105,6 +113,10 @@ function App() {
       alert("Error al procesar la venta");
     }
   };
+
+  if (!isLoggedIn) {
+    return <Login onLoginSuccess={() => setIsLoggedIn(true)} />;
+  }
 
   return (
     <div>
@@ -129,7 +141,6 @@ function App() {
         </button>
       </div>
 
-
       {view === 'products' && (
         <>
           <div className="top-bar">
@@ -152,6 +163,11 @@ function App() {
             >
               Productos por vencer
             </button>
+            {isLoggedIn && (
+  <button className="logout" onClick={handleLogout}>
+    Cerrar sesión
+  </button>
+)}
           </div>
 
           <Table
@@ -167,8 +183,6 @@ function App() {
         </>
       )}
 
-
-
       {view === 'sells' && <SellsTable />}
       {editingProduct && (
         <EditProduct
@@ -181,11 +195,13 @@ function App() {
         <CreateProductModal
           onClose={() => setIsCreateModalOpen(false)}
           onCreated={(newProduct) => {
-            setProducts((prev) => [...prev, newProduct]);
-            setFiltered((prev) => [...prev, newProduct]);
+            setProducts(prev => [...prev, newProduct]);
+            setFiltered(prev => [...prev, newProduct]);
           }}
         />
       )}
+      
+
     </div>
   );
 }
