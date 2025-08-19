@@ -1,28 +1,124 @@
-
 import { useEffect, useState } from 'react'
 import './App.css'
-import { getProducts } from './services/utils';
+import { deleteProduct, getProducts } from './services/utils';
+import { createSell } from './services/utils';
 import Table from './components/Table/Table';
+import type { Product } from './types/product';
+import SearchBar from './components/Search/Search';
+import Cart from './components/Cart/Cart';
 
 function App() {
-  const [products, setProducts] = useState([]);
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await getProducts();
-        setProducts(response);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filtered, setFiltered] = useState<Product[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [filterType, setFilterType] = useState<'all' | 'expiring'>('all');
 
+  useEffect(() => {
     fetchProducts();
-  })
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response: Product[] = await getProducts();
+      setProducts(response);
+      setFiltered(response);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
+
+  const handleDelete = async (id: string | number) => {
+    if (!confirm("¿Seguro que quieres eliminar este producto?")) return;
+    try {
+      await deleteProduct(id.toString());
+      setProducts((prev) => prev.filter((p) => p.product_id !== id));
+      setFiltered((prev) => prev.filter((p) => p.product_id !== id));
+    } catch (error) {
+      console.error("Error eliminando producto:", error);
+    }
+  };
+
+  const handleSearch = (query: string) => {
+    applyFilters(query, filterType);
+  };
+
+  const applyFilters = (searchQuery: string = '', filter: 'all' | 'expiring' = 'all') => {
+    let result = products;
+
+    if (searchQuery) {
+      result = result.filter((p) =>
+        p.product.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (filter === 'expiring') {
+      const today = new Date();
+      result = result.filter((p) => new Date(p.alert_date) <= today);
+    }
+
+    setFiltered(result);
+  };
+
+  const handleFilterChange = (type: 'all' | 'expiring') => {
+    setFilterType(type);
+    applyFilters('', type);
+  };
+
+  // ✅ Nueva función de venta
+  const handleSell = async (cartItems: { product_id: number | string; quantity: number }[]) => {
+    if (cartItems.length === 0) {
+      alert("El carrito está vacío");
+      return;
+    }
+
+    try {
+      // Enviamos cada item al backend
+      for (const item of cartItems) {
+        await createSell({ product_id: item.product_id, quantity: item.quantity });
+      }
+
+      alert("Venta realizada exitosamente");
+      // Refrescar productos desde el backend
+      await fetchProducts();
+    } catch (error) {
+      console.error("Error realizando la venta:", error);
+      alert("Error al procesar la venta");
+    }
+  };
+
   return (
     <div>
-      <Table products={products}></Table>
+      <h2>Productos</h2>
+      <div className="top-bar">
+        <SearchBar onSearch={handleSearch} />
+        <button className="btn btn-blue" onClick={() => setIsCartOpen(true)}>
+          Vender
+        </button>
+      </div>
+
+      <div className="filter-bar">
+        <button
+          className={`btn ${filterType === 'all' ? 'btn-active' : ''}`}
+          onClick={() => handleFilterChange('all')}
+        >
+          Todos los productos
+        </button>
+        <button
+          className={`btn ${filterType === 'expiring' ? 'btn-active' : ''}`}
+          onClick={() => handleFilterChange('expiring')}
+        >
+          Productos por vencer
+        </button>
+      </div>
+
+      <Table products={filtered} onDelete={handleDelete} />
+      <Cart
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        onSell={handleSell} // <-- pasamos la función de venta
+      />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

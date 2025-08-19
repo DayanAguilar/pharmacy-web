@@ -4,6 +4,12 @@
   padding: 2rem;
   text-align: center;
 }
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+}
 
 .logo {
   height: 6em;
@@ -33,10 +39,40 @@
   }
 }
 
+h2{
+  font-size: 1.5em;
+  margin: 0.5em 0;
+  font-style: bold;
+}
 .card {
   padding: 2em;
 }
 
 .read-the-docs {
   color: #888;
+}
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.filter-bar .btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: white;
+  color:black;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-bar .btn:hover {
+  background-color: #f0f0f0;
+}
+
+.filter-bar .btn-active {
+  background-color: #1976d2;
+  color: white;
+  border-color: #1976d2;
 }
