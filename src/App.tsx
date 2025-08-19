@@ -8,6 +8,8 @@ import Cart from './components/Cart/Cart';
 import SellsTable from './components/SellsTable/SellsTable';
 import EditProduct from './components/EditProduct/EditProduct';
 import DailyAlertModal from './components/AlertModal/AlertModal';
+import CreateProductModal from './components/CreateProductModal/CreateProductModal';
+
 
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -84,6 +86,7 @@ function App() {
   };
 
 
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const handleSell = async (cartItems: { product_id: number | string; quantity: number }[]) => {
     if (cartItems.length === 0) {
@@ -106,7 +109,7 @@ function App() {
   return (
     <div>
       <h2>{view === 'products' ? 'Productos' : 'Ventas'}</h2>
-      <DailyAlertModal products={products} onClose={() => {}} />
+      <DailyAlertModal products={products} onClose={() => { }} />
 
       <div className="top-bar">
         <button
@@ -114,6 +117,9 @@ function App() {
           onClick={() => setView('products')}
         >
           Productos
+        </button>
+        <button className="btn btn-green" onClick={() => setIsCreateModalOpen(true)}>
+          Crear Producto
         </button>
         <button
           className={`btn ${view === 'sells' ? 'btn-active' : ''}`}
@@ -169,6 +175,15 @@ function App() {
           product={editingProduct}
           onClose={() => setEditingProduct(null)}
           onSave={handleEditSave}
+        />
+      )}
+      {isCreateModalOpen && (
+        <CreateProductModal
+          onClose={() => setIsCreateModalOpen(false)}
+          onCreated={(newProduct) => {
+            setProducts((prev) => [...prev, newProduct]);
+            setFiltered((prev) => [...prev, newProduct]);
+          }}
         />
       )}
     </div>
