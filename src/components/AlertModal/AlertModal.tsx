@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { Product } from "../../types/product";
 import "./AlertModal.css";
 
@@ -8,7 +8,7 @@ type DailyAlertModalProps = {
   onClose: () => void;
 };
 
-const DailyAlertModal = ({ products, onClose }: DailyAlertModalProps) => {
+const DailyAlertModal = ({ products  }: DailyAlertModalProps) => {
   const [visible, setVisible] = useState(true);
 
   const today = new Date().toISOString().split("T")[0];
