@@ -1,0 +1,60 @@
+
+.daily-alert-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.daily-alert-box {
+  background-color: #fff;
+  padding: 2rem;
+  width: 400px;
+  max-width: 90%;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  animation: dailyFadeIn 0.3s ease;
+}
+
+.daily-alert-box h2 {
+  margin-bottom: 1rem;
+}
+
+.daily-alert-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem 0;
+}
+
+.daily-alert-box li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.daily-alert-btn {
+  display: block;
+  margin-left: auto;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background-color: #3498db;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.daily-alert-btn:hover {
+  background-color: #2980b9;
+}
+
+@keyframes dailyFadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}

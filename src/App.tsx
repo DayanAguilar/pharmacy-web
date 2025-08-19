@@ -7,6 +7,7 @@ import SearchBar from './components/Search/Search';
 import Cart from './components/Cart/Cart';
 import SellsTable from './components/SellsTable/SellsTable';
 import EditProduct from './components/EditProduct/EditProduct';
+import DailyAlertModal from './components/AlertModal/AlertModal';
 
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -105,7 +106,7 @@ function App() {
   return (
     <div>
       <h2>{view === 'products' ? 'Productos' : 'Ventas'}</h2>
-
+      <DailyAlertModal products={products} onClose={() => {}} />
 
       <div className="top-bar">
         <button
