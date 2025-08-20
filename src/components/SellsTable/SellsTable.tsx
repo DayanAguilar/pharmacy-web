@@ -2,23 +2,18 @@ import { useEffect, useState } from "react";
 import { getSellsByDate } from "../../services/utils";
 
 type SellItem = {
+  id: number;
   product_id: number;
-  sell_id: number;
-  date: string;
-  quantity: number;
-  total_price: number;
   product: string;
-};
-
-type SellsData = {
-  sells: SellItem[];
-  total_amount: number;
+  quantity: number;
+  total_price: string; // cambiar a string porque tu JSON lo devuelve así
+  date: string;
 };
 
 const SellsTable = () => {
   const [date, setDate] = useState<string>(() => {
     const today = new Date();
-    return today.toISOString().split("T")[0]; 
+    return today.toISOString().split("T")[0];
   });
   const [sells, setSells] = useState<SellItem[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
@@ -27,9 +22,17 @@ const SellsTable = () => {
   const fetchSells = async (selectedDate: string) => {
     setLoading(true);
     try {
-      const data: SellsData = await getSellsByDate(selectedDate);
-      setSells(data.sells || []);
-      setTotalAmount(data.total_amount || 0);
+
+      const data: SellItem[] = await getSellsByDate(selectedDate);
+      setSells(data || []);
+
+      const total = data.reduce(
+        (acc, item) => acc + Number(item.total_price),
+        0
+      );
+      setTotalAmount(total);
+
+      console.log("Sells fetched successfully:", data);
     } catch (error) {
       console.error("Error fetching sells:", error);
       setSells([]);
@@ -112,7 +115,7 @@ const SellsTable = () => {
                 </tr>
               ) : (
                 sells.map((item) => (
-                  <tr key={item.sell_id}>
+                  <tr key={item.id}>
                     <td>{item.product}</td>
                     <td>{item.quantity}</td>
                     <td>{item.total_price}</td>

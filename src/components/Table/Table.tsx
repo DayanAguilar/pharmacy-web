@@ -24,7 +24,7 @@ const Table = ({ products, onDelete, onEdit }: TableProps) => {
 
   const handleAdd = (product: Product) => {
     const existing = JSON.parse(localStorage.getItem("cart") || "[]") as (Product & { quantity: number })[]
-    const quantity = quantities[product.product_id] || 1
+    const quantity = quantities[product.product_id] || 0
     const productWithQuantity = { ...product, quantity }
     localStorage.setItem("cart", JSON.stringify([...existing, productWithQuantity]))
     alert(`Producto "${product.product}" añadido con cantidad ${quantity}`)
@@ -61,7 +61,7 @@ const Table = ({ products, onDelete, onEdit }: TableProps) => {
                   type="number"
                   min={1}
                   max={product.stock}
-                  value={quantities[product.product_id] || 1}
+                  value={quantities[product.product_id] || 0}
                   onChange={(e) =>
                     handleQuantityChange(product.product_id, Number(e.target.value), product.stock)
                   }
