@@ -104,7 +104,7 @@ const handleLogout = () => {
 
     try {
       for (const item of cartItems) {
-        await createSell({ product_id: item.product_id, quantity: item.quantity });
+        await createSell({ product_id: item.product_id, quantity: Number(item.quantity) });
       }
       alert("Venta realizada exitosamente");
       await fetchProducts();
