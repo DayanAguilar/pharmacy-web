@@ -18,14 +18,14 @@ function App() {
   const [filterType, setFilterType] = useState<'all' | 'expiring'>('all');
   const [view, setView] = useState<'products' | 'sells'>('products');
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
-  return localStorage.getItem('isLoggedIn') === 'true';
-});
+    return localStorage.getItem('isLoggedIn') === 'true';
+  });
 
 
-const handleLogout = () => {
-  localStorage.removeItem('isLoggedIn');
-  setIsLoggedIn(false);
-};
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    setIsLoggedIn(false);
+  };
 
 
   useEffect(() => {
@@ -61,9 +61,10 @@ const handleLogout = () => {
     let result = products;
 
     if (searchQuery) {
-      result = result.filter(p =>
-        p.product.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      result = result.filter(p => {
+        const name = p.product ?? "";
+        return name.toLowerCase().includes(searchQuery.toLowerCase());
+      });
     }
 
     if (filter === 'expiring') {
@@ -164,10 +165,10 @@ const handleLogout = () => {
               Productos por vencer
             </button>
             {isLoggedIn && (
-  <button className="logout" onClick={handleLogout}>
-    Cerrar sesión
-  </button>
-)}
+              <button className="logout" onClick={handleLogout}>
+                Cerrar sesión
+              </button>
+            )}
           </div>
 
           <Table
@@ -200,7 +201,7 @@ const handleLogout = () => {
           }}
         />
       )}
-      
+
 
     </div>
   );
