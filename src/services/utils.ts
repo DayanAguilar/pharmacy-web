@@ -1,8 +1,8 @@
 import axios from "axios";
 
-const URL : string = import.meta.env.VITE_API_URL;
+const URL: string = import.meta.env.VITE_API_URL;
 
-export const getProducts : () => Promise<any> = async () => {
+export const getProducts: () => Promise<any> = async () => {
   try {
     const response = await axios.get(`${URL}/products`);
     return response.data;
@@ -11,7 +11,7 @@ export const getProducts : () => Promise<any> = async () => {
     throw error;
   }
 }
-export const createProduct : (product: any) => Promise<any> = async (product) => {
+export const createProduct: (product: any) => Promise<any> = async (product) => {
   try {
     const response = await axios.post(`${URL}/products`, product);
     return response.data;
@@ -32,7 +32,7 @@ export const updateProduct: (id: string, product: any) => Promise<any> = async (
 }
 
 
-export const deleteProduct : (id: string) => Promise<any> = async (id) => {
+export const deleteProduct: (id: string) => Promise<any> = async (id) => {
   try {
     const response = await axios.delete(`${URL}/products/${id}`);
     return response.data;
@@ -42,7 +42,7 @@ export const deleteProduct : (id: string) => Promise<any> = async (id) => {
   }
 }
 
-export const createSell : (sell: any) => Promise<any> = async (sell) => {
+export const createSell: (sell: any) => Promise<any> = async (sell) => {
   try {
     const response = await axios.post(`${URL}/sells`, sell);
     return response.data;
@@ -52,12 +52,32 @@ export const createSell : (sell: any) => Promise<any> = async (sell) => {
   }
 }
 
-export const getSellsByDate : (date: string) => Promise<any> = async (date) => {
+export const getSellsByDate: (date: string) => Promise<any> = async (date) => {
   try {
     const response = await axios.get(`${URL}/sells/${date}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching sells by date:", error);
+    throw error;
+  }
+}
+
+export const login: (username: string, passwrod: string) => Promise<any> = async (username, password) => {
+  try {
+    const response = await axios.post(`${URL}/login`, { username, password });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export const createUser: (username: string, password: string) => Promise<any> = async (username, password) => {
+  try {
+    const response = await axios.post(`${URL}/user`, { username, password });
+    return response.data;
+  } catch (error) {
+    console.error(error);
     throw error;
   }
 }

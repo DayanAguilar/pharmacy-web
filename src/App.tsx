@@ -10,6 +10,7 @@ import EditProduct from './components/EditProduct/EditProduct';
 import DailyAlertModal from './components/AlertModal/AlertModal';
 import CreateProductModal from './components/CreateProductModal/CreateProductModal';
 import Login from './components/Login/Login';
+import CreateUserModal from './components/CreateUserModal/CreateUserModal';
 
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -17,6 +18,11 @@ function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [filterType, setFilterType] = useState<'all' | 'expiring'>('all');
   const [view, setView] = useState<'products' | 'sells'>('products');
+  const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
+
+  const role: string | null = localStorage.getItem("role")
+
+
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('isLoggedIn') === 'true';
   });
@@ -131,9 +137,16 @@ function App() {
         >
           Productos
         </button>
-        <button className="btn btn-green" onClick={() => setIsCreateModalOpen(true)}>
-          Crear Producto
-        </button>
+        {role === "admin" && (
+          <button className="btn btn-green" onClick={() => setIsCreateModalOpen(true)}>
+            Crear Producto
+          </button>
+        )}
+        {role === "admin" && (
+          <button className="btn btn-green" onClick={() => setIsCreateUserModalOpen(true)}>
+            Crear Usuario
+          </button>
+        )}
         <button
           className={`btn ${view === 'sells' ? 'btn-active' : ''}`}
           onClick={() => setView('sells')}
@@ -198,6 +211,14 @@ function App() {
           onCreated={(newProduct) => {
             setProducts(prev => [...prev, newProduct]);
             setFiltered(prev => [...prev, newProduct]);
+          }}
+        />
+      )}
+      {isCreateUserModalOpen && (
+        <CreateUserModal
+          onClose={() => setIsCreateUserModalOpen(false)}
+          onCreated={(newUser) => {
+            console.log("Usuario creado:", newUser);
           }}
         />
       )}

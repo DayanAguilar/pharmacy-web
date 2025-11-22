@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import './Login.css'; 
+import './Login.css';
+import { login } from '../../services/utils';
+
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -9,18 +11,28 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const envUser = import.meta.env.VITE_USER;
-    const envPass = import.meta.env.VITE_PASSWORD;
+    setLoading(true);
+    setError('');
 
-    if (username === envUser && password === envPass) {
-      setError('');
-      localStorage.setItem('isLoggedIn', 'true'); 
-      onLoginSuccess();
-    } else {
-      setError('Usuario o contraseña incorrectos');
+    try {
+      const data = await login(username, password); 
+      console.log(data);
+      if (data.message=="Login exitoso") {
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('role',data.user.role);
+        onLoginSuccess();
+      } else {
+        setError(data?.message || 'Usuario o contraseña incorrectos');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Error de conexión. Intenta nuevamente.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,7 +52,9 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit" className="btn btn-blue">Entrar</button>
+        <button type="submit" className="btn btn-blue" disabled={loading}>
+          {loading ? 'Ingresando...' : 'Entrar'}
+        </button>
         {error && <p className="login-error">{error}</p>}
       </form>
     </div>

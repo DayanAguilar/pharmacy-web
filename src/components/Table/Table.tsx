@@ -11,7 +11,7 @@ type TableProps = {
 
 const Table = ({ products, onDelete, onEdit }: TableProps) => {
   const [quantities, setQuantities] = useState<Record<string | number, number>>({})
-  
+  const role: string | null = localStorage.getItem("role");
 
   const handleQuantityChange = (id: string | number, value: number, stock: number) => {
     if (value > stock) {
@@ -72,16 +72,26 @@ const Table = ({ products, onDelete, onEdit }: TableProps) => {
                 <button className="btn btn-green" onClick={() => handleAdd(product)}>
                   Añadir
                 </button>
-                <button
-                  className="btn btn-blue"
-                  onClick={() => onEdit && onEdit(product)}
-                >
-                  Editar
-                </button>
-                <button className="btn btn-red" onClick={() => onDelete(product.product_id)}>
-                  Eliminar
-                </button>
+
+                {role === "admin" && (
+                  <>
+                    <button
+                      className="btn btn-blue"
+                      onClick={() => onEdit && onEdit(product)}
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      className="btn btn-red"
+                      onClick={() => onDelete(product.product_id)}
+                    >
+                      Eliminar
+                    </button>
+                  </>
+                )}
               </td>
+
             </tr>
           ))}
         </tbody>
