@@ -8,6 +8,7 @@ type SellItem = {
   quantity: number;
   total_price: string; // cambiar a string porque tu JSON lo devuelve así
   date: string;
+  seller: string;
 };
 
 const SellsTable = () => {
