@@ -21,6 +21,7 @@ function App() {
   const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
 
   const role: string | null = localStorage.getItem("role")
+  const user: string | null = localStorage.getItem("user")
 
 
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -103,16 +104,24 @@ function App() {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  const handleSell = async (cartItems: { product_id: number | string; quantity: number }[]) => {
+  const handleSell = async (
+    cartItems: { product_id: number | string; quantity: number }[]
+  ) => {
     if (cartItems.length === 0) {
       alert("El carrito está vacío");
       return;
     }
 
     try {
+
       for (const item of cartItems) {
-        await createSell({ product_id: item.product_id, quantity: Number(item.quantity) });
+        await createSell({
+          product_id: item.product_id,
+          quantity: Number(item.quantity),
+          seller: user,
+        });
       }
+
       alert("Venta realizada exitosamente");
       await fetchProducts();
     } catch (error) {
@@ -120,6 +129,7 @@ function App() {
       alert("Error al procesar la venta");
     }
   };
+
 
   if (!isLoggedIn) {
     return <Login onLoginSuccess={() => setIsLoggedIn(true)} />;

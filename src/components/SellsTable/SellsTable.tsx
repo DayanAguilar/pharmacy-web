@@ -106,6 +106,7 @@ const SellsTable = () => {
                 <th>Producto</th>
                 <th>Cantidad</th>
                 <th>Total</th>
+                <th>Vendedor</th>
               </tr>
             </thead>
             <tbody>
@@ -119,6 +120,7 @@ const SellsTable = () => {
                     <td>{item.product}</td>
                     <td>{item.quantity}</td>
                     <td>{item.total_price}</td>
+                    <td>{item.seller}</td>
                   </tr>
                 ))
               )}

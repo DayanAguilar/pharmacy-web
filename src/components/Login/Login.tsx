@@ -24,6 +24,7 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
       if (data.message=="Login exitoso") {
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('role',data.user.role);
+        localStorage.setItem('user',data.user.username);
         onLoginSuccess();
       } else {
         setError(data?.message || 'Usuario o contraseña incorrectos');
