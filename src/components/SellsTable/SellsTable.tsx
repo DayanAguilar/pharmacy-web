@@ -6,7 +6,7 @@ type SellItem = {
   product_id: number;
   product: string;
   quantity: number;
-  total_price: string; // cambiar a string porque tu JSON lo devuelve así
+  total_price: string;
   date: string;
   seller: string;
 };
@@ -16,28 +16,21 @@ const SellsTable = () => {
     const today = new Date();
     return today.toISOString().split("T")[0];
   });
+
   const [sells, setSells] = useState<SellItem[]>([]);
-  const [totalAmount, setTotalAmount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [selectedSeller, setSelectedSeller] = useState<string>("ALL");
 
   const fetchSells = async (selectedDate: string) => {
     setLoading(true);
     try {
-
       const data: SellItem[] = await getSellsByDate(selectedDate);
       setSells(data || []);
-
-      const total = data.reduce(
-        (acc, item) => acc + Number(item.total_price),
-        0
-      );
-      setTotalAmount(total);
-
-      console.log("Sells fetched successfully:", data);
+      setSelectedSeller("ALL");
     } catch (error) {
       console.error("Error fetching sells:", error);
       setSells([]);
-      setTotalAmount(0);
     } finally {
       setLoading(false);
     }
@@ -51,14 +44,27 @@ const SellsTable = () => {
     setDate(e.target.value);
   };
 
-  const downloadCSV = () => {
-    if (sells.length === 0) return;
+  const sellers = Array.from(new Set(sells.map((item) => item.seller)));
 
-    const headers = ["Producto", "Cantidad", "Total"];
-    const rows = sells.map((item) => [
+  const filteredSells =
+    selectedSeller === "ALL"
+      ? sells
+      : sells.filter((item) => item.seller === selectedSeller);
+
+  const totalAmount = filteredSells.reduce(
+    (acc, item) => acc + Number(item.total_price),
+    0
+  );
+
+  const downloadCSV = () => {
+    if (filteredSells.length === 0) return;
+
+    const headers = ["Producto", "Cantidad", "Total", "Vendedor"];
+    const rows = filteredSells.map((item) => [
       item.product,
       item.quantity.toString(),
       item.total_price.toString(),
+      item.seller,
     ]);
 
     const csvContent =
@@ -70,7 +76,7 @@ const SellsTable = () => {
     link.setAttribute("href", encodedUri);
     link.setAttribute(
       "download",
-      `ventas_${date.replaceAll("-", "")}.csv`
+      `ventas_${date}_${selectedSeller}.csv`
     );
     document.body.appendChild(link);
     link.click();
@@ -81,10 +87,11 @@ const SellsTable = () => {
     <div>
       <h2>Ventas por fecha</h2>
 
-      <div className="filter-bar" style={{ justifyContent: "center" }}>
-        <label htmlFor="sell-date" style={{ marginRight: "10px" }}>
-          Seleccionar fecha:
-        </label>
+      <div
+        className="filter-bar"
+        style={{ justifyContent: "center", gap: "10px" }}
+      >
+        <label htmlFor="sell-date">Fecha:</label>
         <input
           id="sell-date"
           type="date"
@@ -92,6 +99,21 @@ const SellsTable = () => {
           onChange={handleDateChange}
           className="date-input"
         />
+
+        {/* 🔹 Selector de seller */}
+        <select
+          value={selectedSeller}
+          onChange={(e) => setSelectedSeller(e.target.value)}
+          className="date-input"
+        >
+          <option value="ALL">Todos los vendedores</option>
+          {sellers.map((seller) => (
+            <option key={seller} value={seller}>
+              {seller}
+            </option>
+          ))}
+        </select>
+
         <button className="btn btn-blue" onClick={downloadCSV}>
           Descargar CSV
         </button>
@@ -111,12 +133,12 @@ const SellsTable = () => {
               </tr>
             </thead>
             <tbody>
-              {sells.length === 0 ? (
+              {filteredSells.length === 0 ? (
                 <tr>
-                  <td colSpan={3}>No hay ventas para esta fecha</td>
+                  <td colSpan={4}>No hay ventas para este filtro</td>
                 </tr>
               ) : (
-                sells.map((item) => (
+                filteredSells.map((item) => (
                   <tr key={item.id}>
                     <td>{item.product}</td>
                     <td>{item.quantity}</td>
@@ -127,7 +149,12 @@ const SellsTable = () => {
               )}
             </tbody>
           </table>
-          <h3>Total del día: {totalAmount}</h3>
+
+          <h3>
+            Total del día{" "}
+            {selectedSeller !== "ALL" && `(${selectedSeller})`}:
+            {" "} {totalAmount}
+          </h3>
         </>
       )}
     </div>
