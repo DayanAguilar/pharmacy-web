@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getSellsByDate } from "../../services/utils";
+import { getSellsByDate, deleteSell } from "../../services/utils";
 
 type SellItem = {
   id: number;
@@ -17,9 +17,10 @@ const SellsTable = () => {
     return today.toISOString().split("T")[0];
   });
 
+  const role: string | null = localStorage.getItem("role");
+
   const [sells, setSells] = useState<SellItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-
   const [selectedSeller, setSelectedSeller] = useState<string>("ALL");
 
   const fetchSells = async (selectedDate: string) => {
@@ -42,6 +43,22 @@ const SellsTable = () => {
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDate(e.target.value);
+  };
+
+  const handleDeleteSell = async (sellId: number) => {
+    const confirmDelete = window.confirm(
+      "¿Seguro que deseas eliminar esta venta? Esta acción no se puede deshacer."
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      await deleteSell(sellId);
+      await fetchSells(date);
+    } catch (error) {
+      console.error("Error deleting sell:", error);
+      alert("Error al eliminar la venta");
+    }
   };
 
   const sellers = Array.from(new Set(sells.map((item) => item.seller)));
@@ -100,7 +117,6 @@ const SellsTable = () => {
           className="date-input"
         />
 
-        {/* 🔹 Selector de seller */}
         <select
           value={selectedSeller}
           onChange={(e) => setSelectedSeller(e.target.value)}
@@ -130,12 +146,16 @@ const SellsTable = () => {
                 <th>Cantidad</th>
                 <th>Total</th>
                 <th>Vendedor</th>
+                {role === "admin" && <th>Acciones</th>}
               </tr>
             </thead>
+
             <tbody>
               {filteredSells.length === 0 ? (
                 <tr>
-                  <td colSpan={4}>No hay ventas para este filtro</td>
+                  <td colSpan={role === "admin" ? 5 : 4}>
+                    No hay ventas para este filtro
+                  </td>
                 </tr>
               ) : (
                 filteredSells.map((item) => (
@@ -144,6 +164,17 @@ const SellsTable = () => {
                     <td>{item.quantity}</td>
                     <td>{item.total_price}</td>
                     <td>{item.seller}</td>
+
+                    {role === "admin" && (
+                      <td>
+                        <button
+                          className="btn btn-red"
+                          onClick={() => handleDeleteSell(item.id)}
+                        >
+                          Eliminar
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}

@@ -81,3 +81,12 @@ export const createUser: (username: string, password: string) => Promise<any> = 
     throw error;
   }
 }
+export const deleteSell: (id: number | string) => Promise<any> = async (id) => {
+  try {
+    const response = await axios.delete(`${URL}/sells/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting sell:", error);
+    throw error;
+  }
+};
